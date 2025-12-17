@@ -58,14 +58,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Demo Flow (60 seconds)
-
-1. **Select Template**: Click on "Employment Agreement" from the template library
-2. **Natural Language Input**: Enter: "Software engineer, California, $150k salary, full-time, starting January 15, 2025"
-3. **Review & Complete**: AI extracts the details, review and fill in any missing fields
-4. **Preview**: See the generated document with all your information
-5. **Download**: Click "Download Word" or "Download PDF"
-
 ## Project Structure
 
 ```
