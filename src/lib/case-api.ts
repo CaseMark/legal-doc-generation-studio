@@ -183,18 +183,30 @@ Rules:
 
 Return ONLY valid JSON, no other text.`;
 
-  const response = await chatCompletion({
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: input }
-    ],
-    model: 'openai/gpt-4o',
-    temperature: 0
-  });
-
-  const content = response.choices[0]?.message?.content || '{}';
-  
   try {
+    const response = await chatCompletion({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: input }
+      ],
+      model: 'openai/gpt-4o',
+      temperature: 0
+    });
+
+    let content = response.choices[0]?.message?.content || '{}';
+    
+    // Strip markdown code blocks if present (```json ... ``` or ``` ... ```)
+    content = content.trim();
+    if (content.startsWith('```json')) {
+      content = content.slice(7);
+    } else if (content.startsWith('```')) {
+      content = content.slice(3);
+    }
+    if (content.endsWith('```')) {
+      content = content.slice(0, -3);
+    }
+    content = content.trim();
+    
     // Try to parse the JSON response
     const parsed = JSON.parse(content);
     return {
@@ -202,12 +214,20 @@ Return ONLY valid JSON, no other text.`;
       confidence: parsed.confidence || 0,
       suggestions: parsed.suggestions || []
     };
-  } catch {
-    // If parsing fails, return empty result
+  } catch (error) {
+    // Log the error for debugging
+    console.error('Error in parseNaturalLanguageInput:', error);
+    
+    // If API call or parsing fails, return empty result with helpful message
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       variables: {},
       confidence: 0,
-      suggestions: ['Could not parse the input. Please try again with more specific details.']
+      suggestions: [
+        errorMessage.includes('API') || errorMessage.includes('fetch') 
+          ? `API error: ${errorMessage}` 
+          : 'Could not parse the input. Please try again with more specific details.'
+      ]
     };
   }
 }
