@@ -24,18 +24,32 @@ export async function POST(request: Request) {
       );
     }
     
-    // Flatten all variables from all sections
+    // Flatten all variables from all sections, including options for select fields
     const allVariables = template.sections.flatMap(section => 
-      section.variables.map(v => ({
-        name: v.name,
-        label: v.label,
-        type: v.type,
-        description: v.description
-      }))
+      section.variables.map(v => {
+        let description = v.description || '';
+        // Add options info for select fields to help LLM match values
+        if (v.type === 'select' && v.options) {
+          const optionValues = v.options.map(o => o.value).join(', ');
+          description = description 
+            ? `${description}. Valid values: ${optionValues}`
+            : `Valid values: ${optionValues}`;
+        }
+        return {
+          name: v.name,
+          label: v.label,
+          type: v.type,
+          description: description || undefined
+        };
+      })
     );
     
-    // Parse the natural language input
-    const result = await parseNaturalLanguageInput(input, allVariables);
+    // Parse the natural language input with template context
+    const result = await parseNaturalLanguageInput(
+      input, 
+      allVariables,
+      { name: template.name, category: template.category }
+    );
     
     return NextResponse.json({
       success: true,

@@ -144,13 +144,20 @@ export interface ParsedVariables {
 
 export async function parseNaturalLanguageInput(
   input: string,
-  templateVariables: { name: string; label: string; type: string; description?: string }[]
+  templateVariables: { name: string; label: string; type: string; description?: string }[],
+  templateContext?: { name: string; category: string }
 ): Promise<ParsedVariables> {
   const variableDescriptions = templateVariables.map(v => 
     `- ${v.name} (${v.type}): ${v.label}${v.description ? ` - ${v.description}` : ''}`
   ).join('\n');
 
-  const systemPrompt = `You are a legal document assistant that extracts structured data from natural language input.
+  // Build template-specific context
+  let templateHint = '';
+  if (templateContext) {
+    templateHint = `\nThis is for a "${templateContext.name}" document (category: ${templateContext.category}).`;
+  }
+
+  const systemPrompt = `You are a legal document assistant that extracts structured data from natural language input.${templateHint}
 
 Given a user's description, extract values for the following template variables:
 ${variableDescriptions}
@@ -161,10 +168,17 @@ Return a JSON object with:
 3. "suggestions": An array of strings suggesting what additional information might be needed
 
 Rules:
-- Only include variables that you can confidently extract from the input
+- Extract ALL variables that can be reasonably inferred from the input
+- Be flexible in matching - for example:
+  - "Acme Corp" could be employer_name, company_name, client_name, landlord_name, party_a_name, etc. depending on context
+  - "$150,000" or "150k" should be extracted as 150000 for salary/currency fields
+  - "California" or "CA" should be extracted for state fields
+  - "full-time" or "full time" should match employment_type
+  - "remote" or "work from home" should match work_location
 - For dates, use ISO format (YYYY-MM-DD)
-- For currency/numbers, extract just the numeric value
-- For boolean fields, infer true/false from context
+- For currency/numbers, extract just the numeric value (no $ or commas)
+- For boolean fields, infer true/false from context (e.g., "with health insurance" = health_insurance: true)
+- For select fields, match to the closest valid option value
 - If a value is ambiguous, don't include it and add a suggestion instead
 
 Return ONLY valid JSON, no other text.`;

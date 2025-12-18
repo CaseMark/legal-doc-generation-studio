@@ -317,9 +317,9 @@ function generateFallbackPdf(htmlContent: string, markdownContent: string): stri
   const pageRefs = pages.map((_, i) => `${i + 4} 0 R`).join(' ');
   objects.push(`${objectCount} 0 obj\n<< /Type /Pages /Kids [${pageRefs}] /Count ${pages.length} >>\nendobj`);
   
-  // Object 3: Font
+  // Object 3: Font - Times New Roman (Times-Roman in PDF)
   objectCount++;
-  objects.push(`${objectCount} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj`);
+  objects.push(`${objectCount} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman >>\nendobj`);
   
   // Create page objects and content streams
   const contentStartIndex = objectCount + pages.length + 1;
