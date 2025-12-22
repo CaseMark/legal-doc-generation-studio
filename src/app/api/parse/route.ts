@@ -2,15 +2,35 @@ import { NextResponse } from 'next/server';
 import { getTemplateById } from '@/lib/templates';
 import { parseNaturalLanguageInput } from '@/lib/case-api';
 
+// Input validation constants
+const MAX_INPUT_LENGTH = 10000; // 10KB max for natural language input
+
 // POST /api/parse - Parse natural language input into template variables
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { templateId, input } = body;
     
+    // Validate required fields
     if (!templateId || !input) {
       return NextResponse.json(
         { error: 'templateId and input are required' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate input types
+    if (typeof templateId !== 'string' || typeof input !== 'string') {
+      return NextResponse.json(
+        { error: 'templateId and input must be strings' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate input length to prevent abuse
+    if (input.length > MAX_INPUT_LENGTH) {
+      return NextResponse.json(
+        { error: `Input exceeds maximum length of ${MAX_INPUT_LENGTH} characters` },
         { status: 400 }
       );
     }

@@ -6,6 +6,30 @@ export const metadata: Metadata = {
   description: "Create legal documents from templates using natural language",
 };
 
+// FileText icon as inline SVG
+function FileTextIcon({ className }: { className?: string }) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="24" 
+      height="24" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+      <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+      <path d="M10 9H8"/>
+      <path d="M16 13H8"/>
+      <path d="M16 17H8"/>
+    </svg>
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -18,11 +42,10 @@ export default function RootLayout({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">📄</span>
-                <div>
-                  <h1 className="text-lg font-semibold text-gray-900">Document Generation Studio</h1>
-                  <p className="text-xs text-gray-500">Powered by Case.dev</p>
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center">
+                  <FileTextIcon className="w-6 h-6 text-white" />
                 </div>
+                <h1 className="text-lg font-bold text-gray-900">Document Generation Studio</h1>
               </div>
               <div className="flex items-center gap-6">
                 <nav className="flex items-center gap-4">

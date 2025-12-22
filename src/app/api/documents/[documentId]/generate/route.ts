@@ -3,6 +3,10 @@ import { getDocument, updateDocument } from '@/lib/document-store';
 import { getTemplateById } from '@/lib/templates';
 import { formatDocument, processTemplateContent, formatCurrency, formatDate } from '@/lib/case-api';
 
+// Valid output formats
+const VALID_FORMATS = ['pdf', 'docx', 'html_preview'] as const;
+type OutputFormat = typeof VALID_FORMATS[number];
+
 // POST /api/documents/[documentId]/generate - Generate document in specified format
 export async function POST(
   request: Request,
@@ -10,13 +14,38 @@ export async function POST(
 ) {
   try {
     const { documentId } = await params;
+    
+    // Validate documentId
+    if (!documentId || typeof documentId !== 'string') {
+      return NextResponse.json(
+        { error: 'Invalid document ID' },
+        { status: 400 }
+      );
+    }
+    
+    // Sanitize documentId - only allow alphanumeric, underscore, and hyphen
+    if (!/^[a-zA-Z0-9_-]+$/.test(documentId)) {
+      return NextResponse.json(
+        { error: 'Invalid document ID format' },
+        { status: 400 }
+      );
+    }
+    
     const body = await request.json();
     const { format = 'html_preview' } = body;
     
-    // Validate format
-    if (!['pdf', 'docx', 'html_preview'].includes(format)) {
+    // Validate format type
+    if (typeof format !== 'string') {
       return NextResponse.json(
-        { error: 'Invalid format. Must be pdf, docx, or html_preview' },
+        { error: 'Format must be a string' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate format value
+    if (!VALID_FORMATS.includes(format as OutputFormat)) {
+      return NextResponse.json(
+        { error: `Invalid format. Must be one of: ${VALID_FORMATS.join(', ')}` },
         { status: 400 }
       );
     }

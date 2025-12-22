@@ -5,7 +5,11 @@ const CASE_API_BASE = 'https://api.case.dev';
 function getApiKey(): string {
   const apiKey = process.env.CASEDEV_API_KEY;
   if (!apiKey) {
-    throw new Error('CASEDEV_API_KEY environment variable is not set');
+    throw new Error(
+      'CASEDEV_API_KEY environment variable is not set. ' +
+      'For local development, add it to .env.local. ' +
+      'For Vercel deployment, add it in your Vercel project settings under Environment Variables.'
+    );
   }
   return apiKey;
 }
