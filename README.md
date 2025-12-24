@@ -2,6 +2,8 @@
 
 Create professional legal documents from templates using natural language input. Fill out a smart questionnaire or describe your document in plain English, then generate Word or PDF output.
 
+Live demo: https://legal-doc-generation-studio.casedev.app
+
 ## Features
 
 - **📋 Template Library**: 5 pre-built legal document templates
@@ -178,4 +180,4 @@ This section only appears if include_section is true.
 
 ## License
 
-MIT
+Apache 2.0
